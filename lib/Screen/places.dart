@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:places/Screen/add_places.dart';
-import 'package:places/Widget/places_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'add_places.dart';
+import '../Provider/new_item_provider.dart';
+import '../Widget/places_list.dart';
 
-class Places extends StatelessWidget {
+class Places extends ConsumerWidget {
   const Places({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final addplace = ref.watch(userPlaceProvider);
     return Scaffold(
       appBar: AppBar(
         shape: RoundedRectangleBorder(
@@ -25,7 +28,7 @@ class Places extends StatelessWidget {
           ),
         ],
       ),
-      body: const PlacesList(places: []),
+      body: PlacesList(places: addplace),
     );
   }
 }

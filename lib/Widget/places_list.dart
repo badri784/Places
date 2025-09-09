@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:places/Model/place.dart';
+import 'package:places/Screen/places_detial.dart';
 
 class PlacesList extends StatelessWidget {
   const PlacesList({required this.places, super.key});
@@ -22,10 +23,20 @@ class PlacesList extends StatelessWidget {
     }
     return ListView.builder(
       itemCount: places.length,
-      itemBuilder: (ctx, index) => ListTile(
-        title: Text(
-          places[index].title,
-          style: const TextStyle(fontFamily: 'Cairo'),
+      itemBuilder: (ctx, index) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card.outlined(
+          child: ListTile(
+            title: Text(
+              places[index].title,
+              style: const TextStyle(fontFamily: 'Cairo'),
+            ),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (ctx) => PlacesDetialScreen(place: places[index]),
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:places/Provider/new_item_provider.dart';
+import 'package:places/Widget/pick_image.dart';
 
-class AddPlaces extends StatefulWidget {
+class AddPlaces extends ConsumerStatefulWidget {
   const AddPlaces({super.key});
 
   @override
-  State<AddPlaces> createState() => _AddPlacesState();
+  ConsumerState<AddPlaces> createState() => _AddPlacesState();
 }
 
-class _AddPlacesState extends State<AddPlaces> {
+class _AddPlacesState extends ConsumerState<AddPlaces> {
+  void onsave() {
+    final String text = titleController.text;
+    if (text.isEmpty) return;
+    ref.read(userPlaceProvider.notifier).addNewUser(text);
+    Navigator.of(context).pop();
+  }
+
   final titleController = TextEditingController();
   @override
   void dispose() {
@@ -44,6 +54,9 @@ class _AddPlacesState extends State<AddPlaces> {
               ),
             ),
             const SizedBox(height: 12),
+            const PickImage(),
+            const SizedBox(height: 12),
+
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -54,25 +67,10 @@ class _AddPlacesState extends State<AddPlaces> {
                   horizontal: 16,
                 ),
               ),
-              onPressed: () {},
+              onPressed: onsave,
               icon: const Icon(Icons.add),
               label: const Text('Add Place'),
             ),
-            // MaterialButton(
-            //   onPressed: () {},
-            //   color: Colors.black,
-            //   shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(12),
-            //   ),
-            //   child: const Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       Icon(Icons.add, color: Colors.white),
-            //       SizedBox(width: 7),
-            //       Text('Add Place', style: TextStyle(color: Colors.white)),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),
