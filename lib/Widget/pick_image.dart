@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PickImage extends StatefulWidget {
-  const PickImage({super.key});
+  const PickImage({super.key, required this.addimage});
+  final void Function(File image) addimage;
 
   @override
   State<PickImage> createState() => _PickImageState();
@@ -13,7 +14,7 @@ class PickImage extends StatefulWidget {
 class _PickImageState extends State<PickImage> {
   File? _selectedimage;
 
-  takeapicture() async {
+  Future<void> takeapicture() async {
     final imagepiker = ImagePicker();
     final pickedimage = await imagepiker.pickImage(
       source: ImageSource.camera,
@@ -25,6 +26,8 @@ class _PickImageState extends State<PickImage> {
       //Here you convert the Xfile to file?
       _selectedimage = File(pickedimage.path);
     });
+
+    widget.addimage(_selectedimage!);
   }
 
   @override

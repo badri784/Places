@@ -27,6 +27,10 @@ class PlacesList extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Card.outlined(
           child: ListTile(
+            leading: CircleAvatar(
+              radius: 20,
+              backgroundImage: FileImage(places[index].image),
+            ),
             title: Text(
               places[index].title,
               style: const TextStyle(fontFamily: 'Cairo'),

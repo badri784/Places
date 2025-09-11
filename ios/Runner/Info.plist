@@ -4,6 +4,8 @@
 <dict>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Take Your Favorite Place image</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Add your Favorite Location</string>
 	<key>NSCameraUsageDescription</key>
 	<key>NSMicrophoneUsageDescription</key>
 	<key>CFBundleDevelopmentRegion</key>

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:places/Provider/new_item_provider.dart';
+import 'package:places/Widget/location_input.dart';
 import 'package:places/Widget/pick_image.dart';
 
 class AddPlaces extends ConsumerStatefulWidget {
@@ -11,10 +14,11 @@ class AddPlaces extends ConsumerStatefulWidget {
 }
 
 class _AddPlacesState extends ConsumerState<AddPlaces> {
+  File? _selectedimage;
   void onsave() {
     final String text = titleController.text;
-    if (text.isEmpty) return;
-    ref.read(userPlaceProvider.notifier).addNewUser(text);
+    if (text.isEmpty || _selectedimage == null) return;
+    ref.read(userPlaceProvider.notifier).addNewUser(text, _selectedimage!);
     Navigator.of(context).pop();
   }
 
@@ -54,9 +58,9 @@ class _AddPlacesState extends ConsumerState<AddPlaces> {
               ),
             ),
             const SizedBox(height: 12),
-            const PickImage(),
+            PickImage(addimage: (File image) => _selectedimage = image),
             const SizedBox(height: 12),
-
+            const LocationInput(),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
