@@ -6,8 +6,12 @@ import 'package:places/Model/place.dart';
 class UserPlaceNotifire extends StateNotifier<List<Place>> {
   UserPlaceNotifire() : super([]);
 
-  void addNewUser(String title, File image) {
-    final newplace = Place(title: title, image: image);
+  void addNewUser(String title, File image, LocationPLace locationplace) {
+    final newplace = Place(
+      title: title,
+      image: image,
+      locationPLace: locationplace,
+    );
     state = [newplace, ...state];
   }
 }

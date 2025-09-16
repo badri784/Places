@@ -1,7 +1,10 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:places/Model/place.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LocationInput extends StatefulWidget {
   const LocationInput({super.key});
@@ -11,8 +14,8 @@ class LocationInput extends StatefulWidget {
 }
 
 class _LocationInputState extends State<LocationInput> {
-  bool getlocation = false;
-
+  MapController mapController = MapController();
+  LocationPLace? _locationPLace;
   Future<void> getCurrenLocation() async {
     Location location = Location();
 
@@ -23,9 +26,7 @@ class _LocationInputState extends State<LocationInput> {
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
+      if (!serviceEnabled) return;
     }
 
     permissionGranted = await location.hasPermission();
@@ -35,12 +36,15 @@ class _LocationInputState extends State<LocationInput> {
         return;
       }
     }
-    setState(() {
-      getlocation = true;
-    });
+
     locationData = await location.getLocation();
+    final lat = locationData.latitude;
+    final long = locationData.longitude;
+
+    if (lat == null || long == null) return;
     setState(() {
-      getlocation = false;
+      _locationPLace = LocationPLace(latitude: lat, longitude: long);
+      mapController.move(LatLng(lat, long), 13);
     });
 
     log(locationData.longitude.toString());
@@ -48,42 +52,74 @@ class _LocationInputState extends State<LocationInput> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getCurrenLocation();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Widget ischosenLocation = const Center(
-      child: Text('No Location Added Yet'),
-    );
-    if (getlocation) {
-      ischosenLocation = const Center(child: CircularProgressIndicator());
-    }
-    return Column(
-      children: [
-        Container(
-          height: 170,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            border: Border.all(
-              width: 2,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Location on Map'), centerTitle: true),
+      body: FlutterMap(
+        mapController: mapController,
+        options: const MapOptions(initialZoom: 13),
+        children: [
+          TileLayer(
+            urlTemplate:
+                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+            subdomains: ['a', 'b', 'c', 'd'],
+            userAgentPackageName: 'com.example.app',
           ),
-          child: ischosenLocation,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            TextButton.icon(
-              onPressed: getCurrenLocation,
-              icon: const Icon(Icons.location_on),
-              label: const Text('Add Your location'),
+
+          if (_locationPLace != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: LatLng(
+                    _locationPLace!.latitude,
+                    _locationPLace!.longitude,
+                  ),
+                  width: 80,
+                  height: 80,
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+              ],
             ),
-            TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.map),
-              label: const Text('chose your location on map'),
-            ),
-          ],
-        ),
-      ],
+
+          RichAttributionWidget(
+            attributions: [
+              TextSourceAttribution(
+                'Dev Ahmed elbadri',
+                onTap: () => launchUrl(
+                  Uri.parse(
+                    'https://www.linkedin.com/in/ahmed-elbadri-684178318/',
+                  ),
+                ),
+              ),
+              TextSourceAttribution(
+                '© CARTO, © OpenStreetMap contributors',
+                onTap: () => launchUrl(Uri.parse('https://www.carto.com/')),
+              ),
+              // TextSourceAttribution(
+              //   '© OpenStreetMap contributors',
+              //   onTap: () => launchUrl(
+              //     Uri.parse('https://www.openstreetmap.org/copyright'),
+              //   ),
+              // ),
+              // TextSourceAttribution(
+              //   '© CARTO',
+              //   onTap: () => launchUrl(Uri.parse('https://www.carto.com/')),
+              // ),
+            ],
+            showFlutterMapAttribution: false,
+          ),
+        ],
+      ),
     );
   }
 }
