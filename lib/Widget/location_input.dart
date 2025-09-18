@@ -7,13 +7,15 @@ import 'package:places/Model/place.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LocationInput extends StatefulWidget {
-  const LocationInput({super.key});
+  final void Function(LocationPLace) passlocation;
+  const LocationInput({super.key, required this.passlocation});
 
   @override
   State<LocationInput> createState() => _LocationInputState();
 }
 
 class _LocationInputState extends State<LocationInput> {
+  LatLng? locationselected;
   MapController mapController = MapController();
   LocationPLace? _locationPLace;
   Future<void> getCurrenLocation() async {
@@ -57,39 +59,68 @@ class _LocationInputState extends State<LocationInput> {
     getCurrenLocation();
   }
 
+  void onsavelocation() {
+    if (locationselected == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a location first!')),
+      );
+      return;
+    }
+
+    log(
+      'Saved location: ${locationselected!.latitude}, ${locationselected!.longitude}',
+    );
+    Navigator.of(context).pop();
+    widget.passlocation(_locationPLace!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Location on Map'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Location on Map'),
+        centerTitle: true,
+        actions: [
+          IconButton.outlined(
+            onPressed: onsavelocation,
+            icon: const Icon(Icons.save),
+          ),
+        ],
+      ),
       body: FlutterMap(
         mapController: mapController,
-        options: const MapOptions(initialZoom: 13),
+        options: MapOptions(
+          initialZoom: 13,
+          onTap: (tapposition, point) {
+            setState(() {
+              locationselected = point;
+            });
+          },
+        ),
         children: [
           TileLayer(
             urlTemplate:
                 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
             subdomains: ['a', 'b', 'c', 'd'],
             userAgentPackageName: 'com.example.app',
-          ),
+          ), //log(locationselected.toString());
+          MarkerLayer(
+            markers: locationselected == null
+                ? []
+                : [
+                    Marker(
+                      point: locationselected!,
 
-          if (_locationPLace != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(
-                    _locationPLace!.latitude,
-                    _locationPLace!.longitude,
-                  ),
-                  width: 80,
-                  height: 80,
-                  child: const Icon(
-                    Icons.location_on,
-                    color: Colors.red,
-                    size: 40,
-                  ),
-                ),
-              ],
-            ),
+                      width: 80,
+                      height: 80,
+                      child: const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+          ),
 
           RichAttributionWidget(
             attributions: [
@@ -101,10 +132,10 @@ class _LocationInputState extends State<LocationInput> {
                   ),
                 ),
               ),
-              TextSourceAttribution(
-                '© CARTO, © OpenStreetMap contributors',
-                onTap: () => launchUrl(Uri.parse('https://www.carto.com/')),
-              ),
+              // TextSourceAttribution(
+              //   '© CARTO, © OpenStreetMap contributors',
+              //   onTap: () => launchUrl(Uri.parse('https://www.carto.com/')),
+              // ),
               // TextSourceAttribution(
               //   '© OpenStreetMap contributors',
               //   onTap: () => launchUrl(

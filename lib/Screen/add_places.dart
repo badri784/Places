@@ -1,11 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:places/Model/place.dart';
 import 'package:places/Provider/new_item_provider.dart';
 import 'package:places/Widget/location_input.dart';
-
 import 'package:places/Widget/pick_image.dart';
 
 class AddPlaces extends ConsumerStatefulWidget {
@@ -16,26 +15,58 @@ class AddPlaces extends ConsumerStatefulWidget {
 }
 
 class _AddPlacesState extends ConsumerState<AddPlaces> {
-  Future<void> navscreen() async {
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (ctx) => const LocationInput()));
-  }
-
   bool getlocation = false;
 
   LocationPLace? locationplace;
   File? _selectedimage;
+  final titleController = TextEditingController();
+  Future<void> navscreen() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) =>
+            LocationInput(passlocation: (loc) => locationplace = loc),
+      ),
+    );
+  }
+
   void onsave() {
     final String text = titleController.text;
-    if (text.isEmpty || _selectedimage == null || locationplace == null) return;
+    if (text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (ctx) => const AlertDialog(
+          title: Text('Error title'),
+          content: Text('something was wrong please try agine later'),
+        ),
+      );
+    }
+
+    if (_selectedimage == null) {
+      showDialog(
+        context: context,
+        builder: (ctx) => const AlertDialog(
+          title: Text('Error image'),
+          content: Text('something was wrong please try agine later'),
+        ),
+      );
+    }
+
+    if (locationplace == null) {
+      showDialog(
+        context: context,
+        builder: (ctx) => const AlertDialog(
+          title: Text('Error location'),
+          content: Text('something was wrong please try agine later'),
+        ),
+      );
+    }
+
     ref
         .read(userPlaceProvider.notifier)
         .addNewUser(text, _selectedimage!, locationplace!);
     Navigator.of(context).pop();
   }
 
-  final titleController = TextEditingController();
   @override
   void dispose() {
     super.dispose();
@@ -50,6 +81,7 @@ class _AddPlacesState extends ConsumerState<AddPlaces> {
     if (getlocation) {
       ischosenLocation = const Center(child: CircularProgressIndicator());
     }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -64,17 +96,15 @@ class _AddPlacesState extends ConsumerState<AddPlaces> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            TextFieldTapRegion(
-              child: TextField(
-                onTapOutside: (_) => FocusScope.of(context).unfocus,
-                decoration: InputDecoration(
-                  labelText: 'Title :',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+            TextField(
+              onTapOutside: (_) => FocusScope.of(context).unfocus,
+              decoration: InputDecoration(
+                labelText: 'Title :',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                controller: titleController,
               ),
+              controller: titleController,
             ),
             const SizedBox(height: 12),
             PickImage(addimage: (File image) => _selectedimage = image),
