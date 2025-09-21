@@ -7,8 +7,17 @@ import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart' as sql;
 
 Future<sql.Database> opendatabase() async {
+  /*
+  هنا عشان تقدر تفتح الداتا بيز لازم تجيب الباس ف اول خطوه بعد كدا هتعمل 
+  sql.openDatebase 
+  تعمل join 
+  ل الباس بتاعك والنهايه بتاعتك زي مثلا 
+  place.db 
+  وبعد كدا بتعمل ال 
+  oncreate مره واحده بس وخلي بالك من الحروف ف الكتابه 
+  */
   final dbpath = await sql.getDatabasesPath();
-  final sql.Database db = await sql.openDatabase(
+  final db = await sql.openDatabase(
     path.join(dbpath, 'place.db'),
     onCreate: (db, version) => db.execute(
       'CREATE TABLE user_places(id TEXT PRIMARY KEY,title TEXT,image TEXT,lat REAL,lng REAL)',
@@ -23,7 +32,7 @@ class UserPlaceNotifire extends StateNotifier<List<Place>> {
   Future<void> loadplaces() async {
     final sql.Database db = await opendatabase();
     final List<Map<String, Object?>> data = await db.query('user_places');
-    final List<Place> place = data
+    final place = data
         .map(
           (e) => Place(
             id: e['id'] as String,
@@ -42,8 +51,8 @@ class UserPlaceNotifire extends StateNotifier<List<Place>> {
 
   void addNewUser(String title, File image, LocationPLace locationplace) async {
     final Directory appdir = await syspath.getApplicationDocumentsDirectory();
-    final filename = path.basename(image.path);
-    final copiedimage = await image.copy('${appdir.path}/{$filename}');
+    final String filename = path.basename(image.path);
+    final File copiedimage = await image.copy('${appdir.path}/$filename');
     final newplace = Place(
       title: title,
       image: copiedimage,
@@ -51,14 +60,14 @@ class UserPlaceNotifire extends StateNotifier<List<Place>> {
     );
     final sql.Database db = await opendatabase();
 
-    db.insert('user_places', {
+    await db.insert('user_places', {
       'id': newplace.id,
       'title': newplace.title,
       'image': newplace.image.path,
       'lat': newplace.locationPLace.latitude,
       'lng': newplace.locationPLace.longitude,
     });
-    state = [newplace, ...state];
+    state = [...state, newplace];
   }
 }
 

@@ -18,6 +18,7 @@ class _LocationInputState extends State<LocationInput> {
   LatLng? locationselected;
   MapController mapController = MapController();
   LocationPLace? _locationPLace;
+
   Future<void> getCurrenLocation() async {
     Location location = Location();
 
@@ -48,9 +49,6 @@ class _LocationInputState extends State<LocationInput> {
       _locationPLace = LocationPLace(latitude: lat, longitude: long);
       mapController.move(LatLng(lat, long), 13);
     });
-
-    log(locationData.longitude.toString());
-    log(locationData.latitude.toString());
   }
 
   @override
@@ -70,6 +68,7 @@ class _LocationInputState extends State<LocationInput> {
     log(
       'Saved location: ${locationselected!.latitude}, ${locationselected!.longitude}',
     );
+
     Navigator.of(context).pop();
     widget.passlocation(_locationPLace!);
   }
